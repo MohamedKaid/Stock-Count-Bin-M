@@ -15,7 +15,7 @@ struct ExportInventoryButton: View {
     var body: some View {
         Button {
             do {
-                shareURL = try InventoryExport.makeCSVFile(
+                shareURL = try InventoryExport.makeXLSXFile(
                     items: store.items,
                     categories: categoryStore.categories
                 )

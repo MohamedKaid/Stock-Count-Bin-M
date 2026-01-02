@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9DF2F4712EED02AF008D6CE9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9DF2F4702EED02AF008D6CE9 /* FirebaseAuth */; };
 		9DF2F4732EED02AF008D6CE9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9DF2F4722EED02AF008D6CE9 /* FirebaseFirestore */; };
+		9DF2F67A2F07666F008D6CE9 /* libxlsxwriter in Frameworks */ = {isa = PBXBuildFile; productRef = 9DF2F6792F07666F008D6CE9 /* libxlsxwriter */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9DF2F4712EED02AF008D6CE9 /* FirebaseAuth in Frameworks */,
+				9DF2F67A2F07666F008D6CE9 /* libxlsxwriter in Frameworks */,
 				9DF2F4732EED02AF008D6CE9 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -142,6 +144,7 @@
 			packageProductDependencies = (
 				9DF2F4702EED02AF008D6CE9 /* FirebaseAuth */,
 				9DF2F4722EED02AF008D6CE9 /* FirebaseFirestore */,
+				9DF2F6792F07666F008D6CE9 /* libxlsxwriter */,
 			);
 			productName = stockCount;
 			productReference = 9D5F5CA92EC60E7800632D6C /* stockCount.app */;
@@ -227,6 +230,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				9DF2F46F2EED02AF008D6CE9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				9DF2F6782F07666F008D6CE9 /* XCRemoteSwiftPackageReference "libxlsxwriter" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9D5F5CAA2EC60E7800632D6C /* Products */;
@@ -658,6 +662,14 @@
 				minimumVersion = 12.7.0;
 			};
 		};
+		9DF2F6782F07666F008D6CE9 /* XCRemoteSwiftPackageReference "libxlsxwriter" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jmcnamara/libxlsxwriter";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -670,6 +682,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9DF2F46F2EED02AF008D6CE9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		9DF2F6792F07666F008D6CE9 /* libxlsxwriter */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DF2F6782F07666F008D6CE9 /* XCRemoteSwiftPackageReference "libxlsxwriter" */;
+			productName = libxlsxwriter;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
