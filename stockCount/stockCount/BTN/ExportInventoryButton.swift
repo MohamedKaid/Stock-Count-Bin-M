@@ -2,43 +2,38 @@
 //  ExportInventoryButton.swift
 //  stockCount
 //
-//  Created by Mohamed Kaid on 12/25/25.
-//
 
 import SwiftUI
 
 struct ExportInventoryButton: View {
     @EnvironmentObject private var store: InventoryStore
     @EnvironmentObject private var categoryStore: CategoryStore
-    
-    @State private var exportURL: URL? = nil
+
     @State private var showExportError = false
-    
+    @State private var shareURL: URL? = nil
+
     var body: some View {
-        Group {
-            if let exportURL {
-                ShareLink(item: exportURL) {
-                    Label("", systemImage: "square.and.arrow.up.fill")
-                        .font(.system(size:20))
-                        .foregroundStyle(Color(.white))
-                }
-            } else {
-                Button {
-                    do {
-                        exportURL = try InventoryExport.makeCSVFile(
-                            items: store.items,
-                            categories: categoryStore.categories
-                        )
-                    } catch {
-                        showExportError = true
-                    }
-                } label: {
-                    Label("", systemImage: "square.and.arrow.down.fill")
-                        .font(.system(size:20))
-                        .foregroundStyle(Color(.white))
-                        
-                }
+        Button {
+            do {
+                shareURL = try InventoryExport.makeCSVFile(
+                    items: store.items,
+                    categories: categoryStore.categories
+                )
+            } catch {
+                showExportError = true
             }
+        } label: {
+            Image(systemName: "square.and.arrow.down")
+                .font(.system(size: 20))
+                .foregroundStyle(.white)
+                .frame(width: 32, height: 32)   // 👈 centers the icon
+                .contentShape(Rectangle())      // 👈 centers tap area
+        }
+        .sheet(item: $shareURL) { url in
+            ShareLink(
+                item: url,
+                message: Text("Excel Export")
+            )
         }
         .alert("Export failed", isPresented: $showExportError) {
             Button("OK", role: .cancel) { }
@@ -46,4 +41,9 @@ struct ExportInventoryButton: View {
             Text("Couldn’t create the export file. Try again.")
         }
     }
+}
+
+// MARK: - Identifiable conformance for URL
+extension URL: Identifiable {
+    public var id: String { absoluteString }
 }

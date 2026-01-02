@@ -12,6 +12,8 @@ struct HomeView: View {
     @EnvironmentObject private var store: InventoryStore
     @EnvironmentObject private var categoryStore: CategoryStore
     @State private var navigateToAddItem = false
+    @State private var didRunMigration = false
+
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -46,8 +48,6 @@ struct HomeView: View {
                             Text("Inventory Dashboard")
                                 .font(.title2.weight(.semibold))
                                 .foregroundStyle(.white.opacity(0.85))
-                            
-                            ExportInventoryButton()
                         }
 
 //                    Spacer()
@@ -129,6 +129,16 @@ struct HomeView: View {
                 .buttonStyle(.glassProminent)
             }
             .padding()
+            .onAppear {
+                guard !didRunMigration else { return }
+                didRunMigration = true
+                store.migrateLegacyItemsIfNeeded(using: categoryStore)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ExportInventoryButton()
+                }
+            }
             .navigationDestination(isPresented: $navigateToAddItem) {
                 AddItemView()
             }
