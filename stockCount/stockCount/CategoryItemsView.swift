@@ -54,7 +54,9 @@ struct CategoryItemsView: View {
                     }
                     .swipeActions(edge: .trailing) {
                         Button(role: .destructive) {
-                            store.delete(item)
+                            withAnimation {
+                                store.delete(id: item.id)   // ✅ correct
+                            }
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }

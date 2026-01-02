@@ -14,7 +14,6 @@ struct HomeView: View {
     @State private var navigateToAddItem = false
     @State private var didRunMigration = false
 
-
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
@@ -28,52 +27,30 @@ struct HomeView: View {
         ZStack {
             Color.nightBlueShadow
                 .ignoresSafeArea(.all)
-//            LinearGradient(
-//                gradient: Gradient(colors: [Color.orange,Color.blue, Color.blue, Color.nightBlue, Color.nightBlueShadow]),
-//                startPoint: .bottom,
-//                endPoint: .top
-//            )
-//            .ignoresSafeArea()
 
             VStack(spacing: 20) {
 
                 // Header
-              
-                    VStack(alignment: .center, spacing: 4) {
-                        
-                        Text("BIN MUKHTAR RETAIL")
-                            .font(.title.weight(.bold))
-                            .foregroundStyle(.white)
-                        HStack(spacing:25){
-                            Text("Inventory Dashboard")
-                                .font(.title2.weight(.semibold))
-                                .foregroundStyle(.white.opacity(0.85))
-                        }
+                VStack(alignment: .center, spacing: 4) {
+                    Text("BIN MUKHTAR RETAIL")
+                        .font(.title.weight(.bold))
+                        .foregroundStyle(.white)
 
-//                    Spacer()
-//
-//                    Button {
-//                        // later: settings / profile
-//                    } label: {
-//                        Image(systemName: "gear")
-//                            .font(.title3)
-//                            .foregroundStyle(.white)
-//                            .padding(10)
-//                            .background(.white.opacity(0.12))
-//                            .clipShape(Circle())
-//                    }
+                    HStack(spacing: 25) {
+                        Text("Inventory Dashboard")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.85))
+                    }
                 }
-
-
 
                 // Categories title row
                 HStack {
                     Text("Categories")
                         .font(.title2.weight(.medium))
                         .foregroundStyle(.white)
-                    
+
                     Spacer()
-                    
+
                     NavigationLink {
                         ManageCategoriesView()
                     } label: {
@@ -83,9 +60,6 @@ struct HomeView: View {
                             .padding(.vertical, 6)
                     }
                     .buttonStyle(.glassProminent)
-
-                    
-                   
                 }
                 .padding(.top, 4)
 
@@ -108,10 +82,8 @@ struct HomeView: View {
                             .buttonStyle(.plain)
                             .preferredColorScheme(.light)
                         }
-
                     }
                     .padding(.horizontal)
-
                 }
 
                 // Primary CTA
@@ -132,7 +104,11 @@ struct HomeView: View {
             .onAppear {
                 guard !didRunMigration else { return }
                 didRunMigration = true
-                store.migrateLegacyItemsIfNeeded(using: categoryStore)
+
+                // ✅ Runs:
+                // 1) legacy enum -> dynamic categoryId migration
+                // 2) rebuild any missing categories referenced by items
+                store.repairCategoriesFromStorage(using: categoryStore)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -142,14 +118,8 @@ struct HomeView: View {
             .navigationDestination(isPresented: $navigateToAddItem) {
                 AddItemView()
             }
-            
-            
         }
-        
-        
-        
     }
-
 }
 
 #Preview {

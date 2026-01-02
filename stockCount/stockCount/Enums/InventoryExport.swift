@@ -84,10 +84,14 @@ enum InventoryExport {
     // ✅ Real .xlsx export (formatted for Excel)
     static func makeXLSXFile(items: [Clothes], categories: [Category]) throws -> URL {
 
+        // ✅ IMPORTANT: Clear old exports so you never share an older file by mistake
+        clearOldExports()
+
         // Map categoryId -> name
         let categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
 
-        let fileName = "stockCount_inventory_\(dateStamp()).xlsx"
+        // ✅ Unique filename every export
+        let fileName = "stockCount_inventory_\(dateStamp())_\(UUID().uuidString).xlsx"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
 
         guard let workbook = workbook_new(url.path) else {
@@ -95,6 +99,9 @@ enum InventoryExport {
         }
         defer { workbook_close(workbook) }
 
+        // =========================
+        // Sheet 1: Inventory
+        // =========================
         guard let worksheet = workbook_add_worksheet(workbook, "Inventory") else {
             throw ExportError.failedToCreateWorksheet
         }
@@ -115,7 +122,6 @@ enum InventoryExport {
         let normalFormat = workbook_add_format(workbook)
         format_set_align(normalFormat, UInt8(LXW_ALIGN_VERTICAL_TOP.rawValue))
 
-
         // ===== Sheet layout / formatting =====
 
         // Freeze header row
@@ -132,10 +138,9 @@ enum InventoryExport {
         worksheet_set_column(worksheet, 7, 7, 10, nil) // Size
         worksheet_set_column(worksheet, 8, 8, 12, nil) // Season
         worksheet_set_column(worksheet, 9, 9, 18, nil) // Image
-        worksheet_set_column(worksheet,10,10, 36, nil) // ID
+        worksheet_set_column(worksheet, 10, 10, 36, nil) // ID
 
         // ===== Headers =====
-
         let headers = [
             "Name",
             "Description",
@@ -155,7 +160,6 @@ enum InventoryExport {
         }
 
         // ===== Rows =====
-
         for (index, item) in items.enumerated() {
             let r = index + 1
 
@@ -179,17 +183,49 @@ enum InventoryExport {
 
             // More text
             writeString(worksheet, row: r, col: 6, item.color.rawValue, format: normalFormat)
-            writeString(worksheet, row: r, col: 7, item.size.rawValue,  format: normalFormat)
+            writeString(worksheet, row: r, col: 7, item.size.rawValue, format: normalFormat)
             writeString(worksheet, row: r, col: 8, item.season.rawValue, format: normalFormat)
-            writeString(worksheet, row: r, col: 9, item.image,          format: normalFormat)
-            writeString(worksheet, row: r, col: 10, item.id,            format: normalFormat)
+            writeString(worksheet, row: r, col: 9, item.image, format: normalFormat)
+            writeString(worksheet, row: r, col: 10, item.id, format: normalFormat)
+        }
+
+        // =========================
+        // Sheet 2: Debug (optional but VERY helpful)
+        // This helps you confirm you're opening the newest export.
+        // =========================
+        if let debugSheet = workbook_add_worksheet(workbook, "DEBUG") {
+            let bold = workbook_add_format(workbook)
+            format_set_bold(bold)
+
+            writeString(debugSheet, row: 0, col: 0, "Export Timestamp", format: bold)
+            writeString(debugSheet, row: 0, col: 1, dateStamp())
+
+            writeString(debugSheet, row: 1, col: 0, "Items Exported", format: bold)
+            worksheet_write_number(debugSheet, lxw_row_t(1), lxw_col_t(1), Double(items.count), nil)
+
+            writeString(debugSheet, row: 2, col: 0, "File Name", format: bold)
+            writeString(debugSheet, row: 2, col: 1, fileName)
+
+            worksheet_set_column(debugSheet, 0, 0, 20, nil)
+            worksheet_set_column(debugSheet, 1, 1, 60, nil)
         }
 
         return url
     }
 
-    // MARK: - Helpers
+    // MARK: - Cleanup (Temp folder only)
+    static func clearOldExports() {
+        let temp = FileManager.default.temporaryDirectory
+        let prefix = "stockCount_inventory_"
 
+        if let files = try? FileManager.default.contentsOfDirectory(at: temp, includingPropertiesForKeys: nil) {
+            for f in files where f.lastPathComponent.hasPrefix(prefix) {
+                try? FileManager.default.removeItem(at: f)
+            }
+        }
+    }
+
+    // MARK: - Helpers
     private static func writeString(
         _ ws: UnsafeMutablePointer<lxw_worksheet>?,
         row: Int,
@@ -197,14 +233,16 @@ enum InventoryExport {
         _ value: String,
         format: UnsafeMutablePointer<lxw_format>? = nil
     ) {
-        value.withCString { cstr in
+        // Keep it safe even if empty
+        let safe = value
+        safe.withCString { cstr in
             worksheet_write_string(ws, lxw_row_t(row), lxw_col_t(col), cstr, format)
         }
     }
 
     private static func dateStamp() -> String {
         let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd_HH-mm"
+        f.dateFormat = "yyyy-MM-dd_HH-mm-ss"
         return f.string(from: Date())
     }
 }

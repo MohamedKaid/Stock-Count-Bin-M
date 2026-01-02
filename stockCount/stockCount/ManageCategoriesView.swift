@@ -9,7 +9,13 @@ import SwiftUI
 
 struct ManageCategoriesView: View {
     @EnvironmentObject private var categoryStore: CategoryStore
+    @EnvironmentObject private var store: InventoryStore   // ✅ needed to delete items too
+
     @State private var newName: String = ""
+
+    // ✅ Alert state
+    @State private var showDeleteAlert = false
+    @State private var categoryPendingDelete: Category? = nil
 
     var body: some View {
         VStack(spacing: 12) {
@@ -17,7 +23,6 @@ struct ManageCategoriesView: View {
                 TextField("New category", text: $newName)
                     .font(.system(size: 22))
                     .textFieldStyle(.roundedBorder)
-                    
 
                 Button("Add") {
                     categoryStore.addCategory(name: newName)
@@ -31,16 +36,41 @@ struct ManageCategoriesView: View {
                     Text(cat.name)
                 }
                 .onDelete { indexSet in
-                    for i in indexSet {
-                        let id = categoryStore.categories[i].id
-                        categoryStore.deleteCategory(id: id)
+                    // ✅ Only handle the first one (simple and safe)
+                    // You can expand to multiple later if you want
+                    if let first = indexSet.first {
+                        categoryPendingDelete = categoryStore.categories[first]
+                        showDeleteAlert = true
                     }
                 }
             }
         }
         .navigationTitle("Categories")
         .toolbar {
-            EditButton()   // ✅ add this
+            EditButton()
+        }
+        // ✅ Confirmation Alert
+        .alert("Delete Category?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                guard let cat = categoryPendingDelete else { return }
+
+                // ✅ Delete the category AND its inventory
+                categoryStore.deleteCategoryAndItems(id: cat.id) { categoryId in
+                    store.deleteItems(in: categoryId)
+                }
+
+                categoryPendingDelete = nil
+            }
+
+            Button("Cancel", role: .cancel) {
+                categoryPendingDelete = nil
+            }
+        } message: {
+            if let cat = categoryPendingDelete {
+                Text("This will permanently delete “\(cat.name)” and ALL items inside it. This cannot be undone.")
+            } else {
+                Text("This will permanently delete the category and ALL items inside it.")
+            }
         }
     }
 }
@@ -49,6 +79,6 @@ struct ManageCategoriesView: View {
     NavigationStack {
         ManageCategoriesView()
             .environmentObject(CategoryStore())
+            .environmentObject(InventoryStore())
     }
 }
-
