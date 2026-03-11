@@ -1,6 +1,5 @@
 # 📦 Stock-Count-Bin-M
 
-## 📦 StockCount
 
 StockCount is a SwiftUI-based iOS inventory management app built for small retail businesses.  
 It allows store owners to manage clothing items, track profit margins, organize categories, and export inventory data.
