@@ -38,7 +38,6 @@ Built by **Mohamed Kaid**
 ### 📤 CSV Export
 <img width="600" height="250" alt="Open stockCount_inventory_2026-03-11_10-06-43_D392F24F-5541-40B8-A8C3-14B55C491AAC 2" src="https://github.com/user-attachments/assets/b132681f-1f6e-4898-b642-3bb6c30778c4" />
 
-> Place your images inside a `screenshots` folder in your repository.
 ---
 
 ## 🧱 Architecture
